@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sleep Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fce8f0;
+      color: #2d1020;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 20px 12px; }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #c2185b, #e91e8c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: #8a4060;
+      margin-bottom: 36px;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #f7c5db;
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(194, 24, 91, 0.08);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #b0406a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #7a3050;
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      background: #fff5f8;
+      border: 1px solid #f0a8c4;
+      border-radius: 8px;
+      color: #2d1020;
+      font-size: 16px; /* prevent iOS zoom on focus */
+      min-height: 44px; /* WCAG touch target */
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      border-color: #c2185b;
+      outline: 2px solid #c2185b;
+      outline-offset: 2px;
+    }
+
+    .quality-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: #f0a8c4;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c2185b;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #ad1457;
+    }
+
+    .quality-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      min-width: 40px;
+      text-align: center;
+      color: #c2185b;
+    }
+
+    .quality-label {
+      font-size: 0.9rem;
+      color: #8a4060;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #fff5f8;
+      border: 1px solid #f0a8c4;
+      border-radius: 8px;
+      color: #2d1020;
+      font-size: 1rem;
+      padding: 10px 14px;
+      resize: vertical;
+      min-height: 72px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: #c2185b;
+      outline: 2px solid #c2185b;
+      outline-offset: 2px;
+    }
+
+    button.primary {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      min-height: 44px; /* WCAG touch target */
+      background: linear-gradient(135deg, #c2185b, #e91e8c);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button.primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button.primary:hover:not(:disabled) { opacity: 0.88; }
+
+    button.primary:focus-visible {
+      outline: 3px solid #c2185b;
+      outline-offset: 3px;
+    }
+
+    .history-card {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .history-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #b0406a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+
+    .entry {
+      background: #ffffff;
+      border: 1px solid #f7c5db;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 6px rgba(194, 24, 91, 0.06);
+    }
+
+    .entry-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 400px) {
+      .entry-row { gap: 8px; }
+      .entry-date { min-width: auto; }
+      .entry-participant { min-width: auto; }
+    }
+
+    .entry-participant {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #c2185b;
+      min-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .entry-date {
+      font-size: 0.9rem;
+      color: #8a4060;
+      min-width: 80px;
+    }
+
+    .entry-hours {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #7b1fa2;
+      min-width: 48px;
+    }
+
+    .entry-quality {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .quality-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: #f7c5db;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .quality-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #e91e8c, #c2185b);
+    }
+
+    .entry-quality-num {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #c2185b;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .entry-note {
+      font-size: 0.9rem;
+      color: #8a4060;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .empty {
+      text-align: center;
+      color: #8a4060;
+      padding: 32px 0;
+      font-size: 1rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .toast.error { background: #dc2626; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .config-notice {
+      background: #fff3e0;
+      border: 1px solid #ffb74d;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      color: #e65100;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 480px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌙 Sleep Tracker</h1>
+  <p class="subtitle">Log your sleep, spot your patterns.</p>
+
+  <div class="config-notice" id="config-notice" style="display:none">
+    ⚠️ Google Sheets not connected yet. Entries are saved locally only.
+  </div>
+
+  <div class="card">
+    <h2>Log Sleep</h2>
+
+    <label for="participant">ID</label>
+    <input type="text" id="participant" placeholder="e.g. 001" />
+
+    <label for="date">Date</label>
+    <input type="date" id="date" />
+
+    <label for="hours">Hours slept</label>
+    <input type="number" id="hours" min="0" max="24" step="0.5" placeholder="e.g. 7.5" />
+
+    <label>How refreshed do you feel?</label>
+    <div class="quality-display">
+      <input type="range" id="quality" min="0" max="10" step="0.1" value="7" aria-label="How refreshed do you feel, 0 to 10" />
+      <div class="quality-value" id="quality-val">7</div>
+    </div>
+    <div class="quality-label" id="quality-desc">Good</div>
+
+    <label for="notes">Notes (optional)</label>
+    <textarea id="notes" placeholder="How did you feel? Any disruptions?"></textarea>
+
+    <button class="primary" id="save-btn" onclick="logSleep()">Save Entry</button>
+  </div>
+
+  <div class="history-card">
+    <h2>Your History</h2>
+    <div id="history-list"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // --- CONFIGURATION ---
+    // Paste your Google Apps Script web app URL here after deployment.
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3mHnaPWBRsPnzlCRely_ksEoTC0bk4G6Mm0dUhKiF_ZZbq7E0pzNVEWCE_s2kgx33/exec';
+    // ---------------------
+
+    const QUALITY_LABELS = {
+      0: 'No Sleep', 1: 'Exhausted', 2: 'Very Groggy', 3: 'Groggy', 4: 'Somewhat Tired',
+      5: 'Neutral', 6: 'Decent', 7: 'Good', 8: 'Very Refreshed',
+      9: 'Excellent', 10: 'Fully Refreshed'
+    };
+
+    const dateInput = document.getElementById('date');
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    if (SCRIPT_URL === 'YOUR_SCRIPT_URL') {
+      document.getElementById('config-notice').style.display = 'block';
+    }
+
+    const qualityInput = document.getElementById('quality');
+    const qualityVal = document.getElementById('quality-val');
+    const qualityDesc = document.getElementById('quality-desc');
+    qualityInput.addEventListener('input', () => {
+      const v = parseFloat(qualityInput.value);
+      qualityVal.textContent = v.toFixed(1);
+      qualityDesc.textContent = QUALITY_LABELS[Math.round(v)];
+    });
+
+    // Re-render history when name changes so participants only see their own data
+    document.getElementById('participant').addEventListener('input', () => render());
+
+    function getEntries() {
+      return JSON.parse(localStorage.getItem('sleep-entries') || '[]');
+    }
+
+    function saveLocal(entry) {
+      const entries = getEntries();
+      entries.unshift(entry);
+      localStorage.setItem('sleep-entries', JSON.stringify(entries));
+    }
+
+    async function logSleep() {
+      const participant = document.getElementById('participant').value.trim();
+      const date = dateInput.value;
+      const hours = parseFloat(document.getElementById('hours').value);
+      const quality = parseFloat(qualityInput.value);
+      const notes = document.getElementById('notes').value.trim();
+
+      if (!participant) { alert('Please enter your name or study ID.'); return; }
+      if (!date) { alert('Please select a date.'); return; }
+      if (isNaN(hours) || hours < 0 || hours > 24) {
+        alert('Please enter valid hours (0–24).');
+        return;
+      }
+
+      const entry = { id: Date.now(), participant, date, hours, quality, notes };
+
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      saveLocal(entry);
+
+      if (SCRIPT_URL !== 'YOUR_SCRIPT_URL') {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+          });
+          showToast('Entry saved!', false);
+        } catch (err) {
+          showToast('Saved locally — cloud sync failed.', true);
+        }
+      } else {
+        showToast('Entry saved locally.', false);
+      }
+
+      document.getElementById('hours').value = '';
+      document.getElementById('notes').value = '';
+      qualityInput.value = 7;
+      qualityVal.textContent = '7.0';
+      qualityDesc.textContent = QUALITY_LABELS[7];
+      dateInput.value = new Date().toISOString().split('T')[0];
+      btn.disabled = false;
+      btn.textContent = 'Save Entry';
+
+      render();
+    }
+
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (isError ? ' error' : '') + ' show';
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function formatDate(str) {
+      const [y, m, d] = str.split('-');
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${months[+m-1]} ${+d}, ${y}`;
+    }
+
+    function render() {
+      const name = document.getElementById('participant').value.trim().toLowerCase();
+      const all = getEntries();
+      const entries = name ? all.filter(e => e.participant.toLowerCase() === name) : [];
+      const list = document.getElementById('history-list');
+
+      if (!name) {
+        list.innerHTML = '<p class="empty">Enter your name above to see your history.</p>';
+        return;
+      }
+
+      if (entries.length === 0) {
+        list.innerHTML = '<p class="empty">No entries yet. Log your first night above.</p>';
+        return;
+      }
+
+      list.innerHTML = entries.map(e => `
+        <div class="entry">
+          <div class="entry-row">
+            <span class="entry-participant">${escapeHtml(e.participant)}</span>
+            <span class="entry-date">${formatDate(e.date)}</span>
+            <span class="entry-hours">${e.hours}h</span>
+            <div class="entry-quality">
+              <div class="quality-bar-bg">
+                <div class="quality-bar-fill" style="width:${e.quality * 10}%"></div>
+              </div>
+              <span class="entry-quality-num">${parseFloat(e.quality).toFixed(1)}/10</span>
+            </div>
+          </div>
+          ${e.notes ? `<div class="entry-note">${escapeHtml(e.notes)}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    render();
+  </script>
+</body>
+</html>
