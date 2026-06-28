@@ -557,36 +557,38 @@
       const hours = parseFloat(document.getElementById('hours').value);
       const quality = parseFloat(qualityInput.value);
       const notes = document.getElementById('notes').value.trim();
-      const sleepTimeUnknown = document.getElementById('sleep-time-unknown').checked;
-      const sleepTime = sleepTimeUnknown ? "I don't know" : (document.getElementById('sleep-time').value || '');
 
-      const sleepLatencyHours = document.getElementById('sleep-latency-hours').value || '0';
-      const sleepLatencyMinutes = document.getElementById('sleep-latency-minutes').value || '0';
-      const sleepLatency = `${sleepLatencyHours}h ${sleepLatencyMinutes}m`;
+      // Required field checks (top to bottom order)
+      if (!participant) { alert('Please enter your study ID before saving.'); return; }
+      if (!date) { alert('Please select the date for this entry.'); return; }
+      if (isNaN(hours) || hours < 0 || hours > 24) { alert('Please enter how many hours you slept (between 0 and 24).'); return; }
 
       const troubleSleepingEl = document.querySelector('input[name="trouble-sleeping"]:checked');
-      if (!troubleSleepingEl) { alert('Please answer the trouble falling asleep question.'); return; }
+      if (!troubleSleepingEl) { alert('Did you have trouble falling asleep? Please select Yes or No.'); return; }
       const troubleSleeping = troubleSleepingEl.value;
 
+      const sleepTimeUnknown = document.getElementById('sleep-time-unknown').checked;
+      const sleepTimeVal = document.getElementById('sleep-time').value;
+      if (!sleepTimeUnknown && !sleepTimeVal) { alert('Please enter the time you fell asleep, or check "I don\'t know" if you\'re unsure.'); return; }
+      const sleepTime = sleepTimeUnknown ? "I don't know" : sleepTimeVal;
+
+      const sleepLatencyHours = document.getElementById('sleep-latency-hours').value;
+      const sleepLatencyMinutes = document.getElementById('sleep-latency-minutes').value;
+      if (sleepLatencyHours === '' && sleepLatencyMinutes === '') { alert('Please enter how long it took you to fall asleep. Enter 0 hours and 0 minutes if you fell asleep right away.'); return; }
+      const sleepLatency = `${sleepLatencyHours || '0'}h ${sleepLatencyMinutes || '0'}m`;
+
       const awakenEl = document.querySelector('input[name="awaken"]:checked');
-      if (!awakenEl) { alert('Please answer the awakening question.'); return; }
+      if (!awakenEl) { alert('Did you wake up during the night? Please select Yes or No.'); return; }
       const awaken = awakenEl.value;
       const awakenCount = awaken === 'Yes' ? (parseInt(document.getElementById('awaken-count').value) || '') : '';
-      if (awaken === 'Yes' && !awakenCount) { alert('Please enter how many times you awakened.'); return; }
+      if (awaken === 'Yes' && !awakenCount) { alert('Please enter how many times you woke up during the night.'); return; }
 
       const nightmaresEl = document.querySelector('input[name="nightmares"]:checked');
-      if (!nightmaresEl) { alert('Please answer the nightmares question.'); return; }
+      if (!nightmaresEl) { alert('Did you experience any nightmares? Please select Yes or No.'); return; }
       const nightmares = nightmaresEl.value;
       const nightmareCount = nightmares === 'Yes' ? (parseInt(document.getElementById('nightmare-count').value) || '') : '';
       if (nightmares === 'Yes' && !nightmareCount) { alert('Please enter how many nightmares you had.'); return; }
       const nightmareDescription = nightmares === 'Yes' ? document.getElementById('nightmare-description').value.trim() : '';
-
-      if (!participant) { alert('Please enter your ID.'); return; }
-      if (!date) { alert('Please select a date.'); return; }
-      if (isNaN(hours) || hours < 0 || hours > 24) {
-        alert('Please enter valid hours (0–24).');
-        return;
-      }
 
       const entry = { id: Date.now(), participant, date, hours, quality, sleepTime, sleepLatency, troubleSleeping, awaken, awakenCount, nightmares, nightmareCount, nightmareDescription, notes };
 
