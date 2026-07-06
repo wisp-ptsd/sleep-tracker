@@ -282,7 +282,7 @@
       const btn = document.getElementById('save-btn'); btn.disabled = false; btn.textContent = 'Save Entry';
     }
     function showToast(msg, isError) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast' + (isError ? ' error' : '') + ' show'; setTimeout(() => t.classList.remove('show'), 2800); }
-    function formatDate(str) { if (!str) return '—'; const [y,m,d] = str.split('-'); const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return mo[+m-1] + ' ' + (+d) + ', ' + y; }
+    function formatDate(str) { if (!str) return '—'; let dt; const parts = str.split('-'); if (parts.length === 3 && parts[0].length === 4) { dt = new Date(+parts[0], +parts[1] - 1, +parts[2]); } else { dt = new Date(str); } if (!isNaN(dt.getTime())) { const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return days[dt.getDay()] + ', ' + mo[dt.getMonth()] + ' ' + dt.getDate(); } return str; }
     function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     document.getElementById('history-list').innerHTML = '<p class="empty">Enter your ID above to see your history.</p>';
   </script>
